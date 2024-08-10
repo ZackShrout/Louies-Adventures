@@ -5,6 +5,7 @@
 
 #include "PaperFlipbookComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ALAPlayer::ALAPlayer()
 {
@@ -20,6 +21,9 @@ ALAPlayer::ALAPlayer()
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(60.f);
 	GetCapsuleComponent()->SetCapsuleRadius(34);
+
+	GetCharacterMovement()->AirControl = 1.f;
+	GetCharacterMovement()->FallingLateralFriction = 50.f;
 
 	GetSprite()->SetRelativeTransform(FTransform(FVector(-5.f, 0.f, 13.9f)));
 
