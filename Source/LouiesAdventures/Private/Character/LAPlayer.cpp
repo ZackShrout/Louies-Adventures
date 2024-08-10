@@ -22,4 +22,6 @@ ALAPlayer::ALAPlayer()
 	GetCapsuleComponent()->SetCapsuleRadius(34);
 
 	GetSprite()->SetRelativeTransform(FTransform(FVector(-5.f, 0.f, 13.9f)));
+
+	JumpMaxHoldTime = 0.4f;
 }
