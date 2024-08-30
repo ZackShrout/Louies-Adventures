@@ -29,3 +29,28 @@ ALAPlayer::ALAPlayer()
 
 	JumpMaxHoldTime = 0.4f;
 }
+
+float ALAPlayer::GetCrawlSpeedFactor() const
+{
+	return CrawlSpeedFactor;
+}
+
+void ALAPlayer::ShouldSlurp(const bool bShouldSlurp)
+{
+	bSlurping = bShouldSlurp;
+}
+
+bool ALAPlayer::IsCrouching() const
+{
+	return bCrouching;
+}
+
+void ALAPlayer::ShouldCrouch(const bool bShouldCrouch)
+{
+	bCrouching = bShouldCrouch;
+}
+
+bool ALAPlayer::IsSlurping() const
+{
+	return bSlurping;
+}

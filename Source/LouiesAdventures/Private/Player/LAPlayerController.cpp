@@ -35,6 +35,7 @@ void ALAPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ALAPlayerController::Jump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Canceled, this, &ALAPlayerController::StopJump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ALAPlayerController::StopJump);
+	EnhancedInputComponent->BindAction(SlurpAction, ETriggerEvent::Started, this, &ALAPlayerController::Slurp);
 }
 
 void ALAPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -43,11 +44,22 @@ void ALAPlayerController::Move(const FInputActionValue& InputActionValue)
 
 	if (APawn* ControlledPawn{ GetPawn<APawn>() })
 	{
-		ControlledPawn->AddMovementInput(FVector(1.f, 0.f, 0.f), InputAxisVector.X);
+		ALAPlayer* ControlledCharacter{ CastChecked<ALAPlayer>(ControlledPawn) };
+		
+		if (InputAxisVector.Y < -.8f && !ControlledCharacter->IsCrouching())
+			ControlledCharacter->ShouldCrouch(true);
 
-		if (InputActionValue.GetMagnitude() >= 0.f)
+		if (InputAxisVector.Y > .8f && ControlledCharacter->IsCrouching())
+			ControlledCharacter->ShouldCrouch(false);
+
+		ControlledPawn->AddMovementInput(FVector(1.f, 0.f, 0.f),
+		                                 InputAxisVector.X * (!ControlledCharacter->IsCrouching()
+			                                 ? 1.f
+			                                 : ControlledCharacter->GetCrawlSpeedFactor()));
+
+		if (InputAxisVector.X > .0f)
 			SetControlRotation(FRotator(0.f, 0.f, 0.f));
-		else
+		else if (InputAxisVector.X < .0f)
 			SetControlRotation(FRotator(0.f, 180.f, 0.f));
 	}
 }
@@ -59,6 +71,7 @@ void ALAPlayerController::Jump(const FInputActionValue& InputActionValue)
 		ALAPlayer* ControlledCharacter{ CastChecked<ALAPlayer>(ControlledPawn) };
 
 		ControlledCharacter->Jump();
+		ControlledCharacter->ShouldCrouch(false);
 	}
 }
 
@@ -69,5 +82,16 @@ void ALAPlayerController::StopJump(const FInputActionValue& InputActionValue)
 		ALAPlayer* ControlledCharacter{ CastChecked<ALAPlayer>(ControlledPawn) };
 
 		ControlledCharacter->StopJumping();
+	}
+}
+
+void ALAPlayerController::Slurp(const FInputActionValue& InputActionValue)
+{
+	if (APawn* ControlledPawn{ GetPawn<APawn>() })
+	{
+		ALAPlayer* ControlledCharacter{ CastChecked<ALAPlayer>(ControlledPawn) };
+
+		if (!ControlledCharacter->IsSlurping())
+			ControlledCharacter->DoSlurp();
 	}
 }

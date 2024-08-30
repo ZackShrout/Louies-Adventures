@@ -29,6 +29,7 @@ private:
 	void Move(const FInputActionValue& InputActionValue);
 	void Jump(const FInputActionValue& InputActionValue);
 	void StopJump(const FInputActionValue& InputActionValue);
+	void Slurp(const FInputActionValue& InputActionValue);
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> LAContext;
@@ -38,4 +39,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> JumpAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+    TObjectPtr<UInputAction> SlurpAction;
 };
