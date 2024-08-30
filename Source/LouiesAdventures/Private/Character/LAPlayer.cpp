@@ -25,7 +25,7 @@ ALAPlayer::ALAPlayer()
 	GetCharacterMovement()->AirControl = 1.f;
 	GetCharacterMovement()->FallingLateralFriction = 50.f;
 
-	GetSprite()->SetRelativeTransform(FTransform(FVector(-5.f, 0.f, 13.9f)));
+	GetSprite()->SetRelativeTransform(FTransform(FVector(-5.f, 0.f, -2.1f)));
 
 	JumpMaxHoldTime = 0.4f;
 }
