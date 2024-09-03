@@ -18,6 +18,7 @@ class LOUIESADVENTURES_API ALAPlayer : public ALACharacterBase
 
 public:
 	ALAPlayer();
+	virtual void Tick(float DeltaSeconds) override;
 
 	float GetCrawlSpeedFactor() const;
 	
@@ -46,6 +47,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCameraComponent> CameraComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float CrawlSpeedFactor{ 0.5f };
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	float WallTraceLength{ 40.f };
+
+private:
+	void TryWallClimb(bool bDrawDebug = false);
 };

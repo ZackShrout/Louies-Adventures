@@ -4,11 +4,16 @@
 #include "Character/LAPlayer.h"
 
 #include "PaperFlipbookComponent.h"
+#include "Animation/AnimInstanceProxy.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/BlueprintTypeConversions.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 ALAPlayer::ALAPlayer()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComponent->SetupAttachment(RootComponent);
 	SpringArmComponent->TargetArmLength = 500.f;
@@ -30,6 +35,13 @@ ALAPlayer::ALAPlayer()
 	JumpMaxHoldTime = 0.4f;
 }
 
+void ALAPlayer::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+	TryWallClimb(true);
+}
+
 float ALAPlayer::GetCrawlSpeedFactor() const
 {
 	return CrawlSpeedFactor;
@@ -48,6 +60,22 @@ bool ALAPlayer::IsCrouching() const
 void ALAPlayer::ShouldCrouch(const bool bShouldCrouch)
 {
 	bCrouching = bShouldCrouch;
+}
+
+void ALAPlayer::TryWallClimb(bool bDrawDebug/* = false*/)
+{
+	FHitResult Hit;
+	const TArray<AActor*> ActorsToIgnore{};
+	const TArray<TEnumAsByte<EObjectTypeQuery>> Types{ ObjectTypeQuery1 }; // ObjectTypeQuery1 is WorldStatic
+	
+	FVector TraceVector{ GetActorForwardVector() };
+	TraceVector.X *= WallTraceLength;
+	FVector EndTraceLocation{ GetActorLocation() + TraceVector };
+
+	UKismetSystemLibrary::LineTraceSingleForObjects(this, GetActorLocation(), EndTraceLocation, Types, false,
+	                                                ActorsToIgnore,
+	                                                bDrawDebug ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None,
+	                                                Hit, true);
 }
 
 bool ALAPlayer::IsSlurping() const
