@@ -20,6 +20,7 @@ class LOUIESADVENTURES_API ALAPlayerController : public APlayerController
 
 public:
 	ALAPlayerController() {  }
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -30,6 +31,7 @@ private:
 	void Jump(const FInputActionValue& InputActionValue);
 	void StopJump(const FInputActionValue& InputActionValue);
 	void Slurp(const FInputActionValue& InputActionValue);
+	void TryWallClimb(bool bDrawDebug = false);
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> LAContext;

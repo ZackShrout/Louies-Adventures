@@ -18,28 +18,35 @@ class LOUIESADVENTURES_API ALAPlayer : public ALACharacterBase
 
 public:
 	ALAPlayer();
-	virtual void Tick(float DeltaSeconds) override;
 
-	float GetCrawlSpeedFactor() const;
+	float GetCrawlSpeedFactor() const { return CrawlSpeedFactor; }
+	float GetWallTraceLength() const { return WallTraceLength; };
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void DoSlurp();
 
 	UFUNCTION(BlueprintCallable)
-	bool IsSlurping() const;
+	bool IsSlurping() const { return bSlurping; }
 
 	UFUNCTION(BlueprintCallable)
-	void ShouldSlurp(const bool bShouldSlurp);
+	void ShouldSlurp(const bool bShouldSlurp) { bSlurping = bShouldSlurp; }
 
 	UFUNCTION(BlueprintCallable)
-	bool IsCrouching() const;
+	bool IsCrouching() const { return bCrouching; }
 
 	UFUNCTION(BlueprintCallable)
-	void ShouldCrouch(const bool bShouldCrouch);
+	void ShouldCrouch(const bool bShouldCrouch) { bCrouching = bShouldCrouch; }
+
+	UFUNCTION(BlueprintCallable)
+	bool IsWallClimbing() const { return bWallClimbing; }
+
+	UFUNCTION(BlueprintCallable)
+	void ShouldWallClimb(const bool bShouldWallClimb) { bWallClimbing = bShouldWallClimb; }
 	
 protected:
 	bool bSlurping{ false };
 	bool bCrouching{ false };
+	bool bWallClimbing{ false };
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
@@ -52,7 +59,4 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float WallTraceLength{ 40.f };
-
-private:
-	void TryWallClimb(bool bDrawDebug = false);
 };

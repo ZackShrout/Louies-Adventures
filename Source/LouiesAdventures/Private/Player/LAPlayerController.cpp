@@ -6,6 +6,14 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Character/LAPlayer.h"
+#include "Kismet/KismetSystemLibrary.h"
+
+void ALAPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+	TryWallClimb();
+}
 
 void ALAPlayerController::BeginPlay()
 {
@@ -93,5 +101,35 @@ void ALAPlayerController::Slurp(const FInputActionValue& InputActionValue)
 
 		if (!ControlledCharacter->IsSlurping())
 			ControlledCharacter->DoSlurp();
+	}
+}
+
+void ALAPlayerController::TryWallClimb(bool bDrawDebug/* = false*/)
+{
+	if (APawn* ControlledPawn{ GetPawn<APawn>() })
+	{
+		ALAPlayer* ControlledCharacter{ CastChecked<ALAPlayer>(ControlledPawn) };
+		FHitResult Hit;
+		const TArray<AActor*> ActorsToIgnore{};
+		const TArray<TEnumAsByte<EObjectTypeQuery>> Types{ ObjectTypeQuery1 }; // ObjectTypeQuery1 is WorldStatic
+	
+		FVector TraceVector{ GetPawn()->GetActorForwardVector() };
+		TraceVector.X *= ControlledCharacter->GetWallTraceLength();
+		const FVector EndTraceLocation{ GetPawn()->GetActorLocation() + TraceVector };
+
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(this, GetPawn()->GetActorLocation(), EndTraceLocation, Types, false,
+															ActorsToIgnore,
+															bDrawDebug
+																? EDrawDebugTrace::ForOneFrame
+																: EDrawDebugTrace::None, Hit, true))
+		{
+			// GEngine->AddOnScreenDebugMessage(0, .5f, FColor::Red, "Wall Hit");
+
+			ControlledCharacter->ShouldWallClimb(true);
+		}
+		else
+		{
+			ControlledCharacter->ShouldWallClimb(false);
+		}
 	}
 }
