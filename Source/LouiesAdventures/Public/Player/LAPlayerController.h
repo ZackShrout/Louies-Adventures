@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnhancedInputComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "LAPlayerController.generated.h"
 
@@ -32,6 +33,8 @@ private:
 	void StopJump(const FInputActionValue& InputActionValue);
 	void Slurp(const FInputActionValue& InputActionValue);
 	void TryWallClimb(bool bDrawDebug = false);
+
+	FEnhancedInputActionValueBinding* MoveActionBinding;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> LAContext;

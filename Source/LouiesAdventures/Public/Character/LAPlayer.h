@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "LACharacterBase.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "LAPlayer.generated.h"
 
@@ -41,12 +42,19 @@ public:
 	bool IsWallClimbing() const { return bWallClimbing; }
 
 	UFUNCTION(BlueprintCallable)
-	void ShouldWallClimb(const bool bShouldWallClimb) { bWallClimbing = bShouldWallClimb; }
+	void ShouldWallClimb(const bool bShouldWallClimb);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsWallSliding() const { return bWallSliding; }
+
+	UFUNCTION(BlueprintCallable)
+	void ShouldWallSlide(const bool bShouldWallSlide);
 	
 protected:
 	bool bSlurping{ false };
 	bool bCrouching{ false };
 	bool bWallClimbing{ false };
+	bool bWallSliding{ false };
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
@@ -59,4 +67,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float WallTraceLength{ 40.f };
+
+private:
+	float GravityScale{ 5.5f };
 };

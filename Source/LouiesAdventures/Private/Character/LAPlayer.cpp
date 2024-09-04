@@ -4,11 +4,7 @@
 #include "Character/LAPlayer.h"
 
 #include "PaperFlipbookComponent.h"
-#include "Animation/AnimInstanceProxy.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/BlueprintTypeConversions.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 ALAPlayer::ALAPlayer()
 {
@@ -27,8 +23,34 @@ ALAPlayer::ALAPlayer()
 
 	GetCharacterMovement()->AirControl = 1.f;
 	GetCharacterMovement()->FallingLateralFriction = 50.f;
+	GetCharacterMovement()->GravityScale = GravityScale;
 
 	GetSprite()->SetRelativeTransform(FTransform(FVector(-5.f, 0.f, -2.1f)));
 
 	JumpMaxHoldTime = 0.4f;
+}
+
+void ALAPlayer::ShouldWallClimb(const bool bShouldWallClimb)
+{
+	bWallClimbing = bShouldWallClimb;
+
+	if (bWallClimbing) ShouldWallSlide(false);
+
+	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+	
+	MovementComponent->GravityScale = bWallClimbing ? 0.f : GravityScale;
+	MovementComponent->Velocity.Z = bWallClimbing ? FMath::Max(0.0, GetMovementComponent()->Velocity.Z) : MovementComponent->Velocity.Z;
+	GetSprite()->SetRelativeTransform(FTransform(FVector(bWallClimbing ? 4.f : -5.f, 0.f, -2.1f)));
+}
+
+void ALAPlayer::ShouldWallSlide(const bool bShouldWallSlide)
+{
+	bWallSliding = bShouldWallSlide;
+
+	if (bWallSliding) ShouldWallClimb(false);
+
+	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+	
+	MovementComponent->Velocity.Z = bWallClimbing ? FMath::Max(-20.0, GetMovementComponent()->Velocity.Z) : MovementComponent->Velocity.Z;
+	GetSprite()->SetRelativeTransform(FTransform(FVector(bWallClimbing ? 4.f : -5.f, 0.f, -2.1f)));
 }

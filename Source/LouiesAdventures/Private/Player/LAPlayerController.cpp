@@ -6,6 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Character/LAPlayer.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 void ALAPlayerController::Tick(float DeltaSeconds)
@@ -44,6 +46,8 @@ void ALAPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Canceled, this, &ALAPlayerController::StopJump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ALAPlayerController::StopJump);
 	EnhancedInputComponent->BindAction(SlurpAction, ETriggerEvent::Started, this, &ALAPlayerController::Slurp);
+
+	MoveActionBinding = &EnhancedInputComponent->BindActionValue(MoveAction);
 }
 
 void ALAPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -109,13 +113,24 @@ void ALAPlayerController::TryWallClimb(bool bDrawDebug/* = false*/)
 	if (APawn* ControlledPawn{ GetPawn<APawn>() })
 	{
 		ALAPlayer* ControlledCharacter{ CastChecked<ALAPlayer>(ControlledPawn) };
+
+		// Note: If player is not pressing controls toward wall, or character not falling while gravity scale
+		//		 has not been zeroed out, do not wall climb
+		if (MoveActionBinding->GetValue().Get<FVector2D>().X * ControlledPawn->GetActorForwardVector().X <= 0.f ||
+			(ControlledPawn->GetMovementComponent()->Velocity.Z > -50.f && ControlledCharacter->GetCharacterMovement()->GravityScale > 0.f))
+		{
+			ControlledCharacter->ShouldWallClimb(false);
+			
+			return;
+		}
+
 		FHitResult Hit;
 		const TArray<AActor*> ActorsToIgnore{};
 		const TArray<TEnumAsByte<EObjectTypeQuery>> Types{ ObjectTypeQuery1 }; // ObjectTypeQuery1 is WorldStatic
 	
-		FVector TraceVector{ GetPawn()->GetActorForwardVector() };
+		FVector TraceVector{ ControlledPawn->GetActorForwardVector() };
 		TraceVector.X *= ControlledCharacter->GetWallTraceLength();
-		const FVector EndTraceLocation{ GetPawn()->GetActorLocation() + TraceVector };
+		const FVector EndTraceLocation{ ControlledPawn->GetActorLocation() + TraceVector };
 
 		if (UKismetSystemLibrary::LineTraceSingleForObjects(this, GetPawn()->GetActorLocation(), EndTraceLocation, Types, false,
 															ActorsToIgnore,
@@ -123,8 +138,8 @@ void ALAPlayerController::TryWallClimb(bool bDrawDebug/* = false*/)
 																? EDrawDebugTrace::ForOneFrame
 																: EDrawDebugTrace::None, Hit, true))
 		{
-			// GEngine->AddOnScreenDebugMessage(0, .5f, FColor::Red, "Wall Hit");
-
+			// TODO: Differentiate between Wall Climbing and Wall Sliding here
+			
 			ControlledCharacter->ShouldWallClimb(true);
 		}
 		else
