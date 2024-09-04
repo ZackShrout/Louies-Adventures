@@ -14,7 +14,7 @@ void ALAPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
-	TryWallClimb();
+	TryWallInteract();
 }
 
 void ALAPlayerController::BeginPlay()
@@ -108,18 +108,19 @@ void ALAPlayerController::Slurp(const FInputActionValue& InputActionValue)
 	}
 }
 
-void ALAPlayerController::TryWallClimb(bool bDrawDebug/* = false*/)
+void ALAPlayerController::TryWallInteract(bool bDrawDebug/* = false*/) const
 {
 	if (APawn* ControlledPawn{ GetPawn<APawn>() })
 	{
 		ALAPlayer* ControlledCharacter{ CastChecked<ALAPlayer>(ControlledPawn) };
 
 		// Note: If player is not pressing controls toward wall, or character not falling while gravity scale
-		//		 has not been zeroed out, do not wall climb
+		//		 has not been zeroed out, do not interact with the wall
 		if (MoveActionBinding->GetValue().Get<FVector2D>().X * ControlledPawn->GetActorForwardVector().X <= 0.f ||
 			(ControlledPawn->GetMovementComponent()->Velocity.Z > -50.f && ControlledCharacter->GetCharacterMovement()->GravityScale > 0.f))
 		{
 			ControlledCharacter->ShouldWallClimb(false);
+			ControlledCharacter->ShouldWallSlide(false);
 			
 			return;
 		}
@@ -138,13 +139,16 @@ void ALAPlayerController::TryWallClimb(bool bDrawDebug/* = false*/)
 																? EDrawDebugTrace::ForOneFrame
 																: EDrawDebugTrace::None, Hit, true))
 		{
-			// TODO: Differentiate between Wall Climbing and Wall Sliding here
-			
-			ControlledCharacter->ShouldWallClimb(true);
+			if (Hit.GetComponent()->ComponentHasTag("Slippery"))
+				ControlledCharacter->ShouldWallSlide(true);
+			else
+				ControlledCharacter->ShouldWallClimb(true);
+
 		}
 		else
 		{
 			ControlledCharacter->ShouldWallClimb(false);
+			ControlledCharacter->ShouldWallSlide(false);
 		}
 	}
 }

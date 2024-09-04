@@ -51,6 +51,6 @@ void ALAPlayer::ShouldWallSlide(const bool bShouldWallSlide)
 
 	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
 	
-	MovementComponent->Velocity.Z = bWallClimbing ? FMath::Max(-20.0, GetMovementComponent()->Velocity.Z) : MovementComponent->Velocity.Z;
-	GetSprite()->SetRelativeTransform(FTransform(FVector(bWallClimbing ? 4.f : -5.f, 0.f, -2.1f)));
+	MovementComponent->Velocity.Z = bWallSliding ? FMath::Max(-20.0, GetMovementComponent()->Velocity.Z) : MovementComponent->Velocity.Z;
+	GetSprite()->SetRelativeTransform(FTransform(FVector(bWallSliding ? 4.f : -5.f, 0.f, -2.1f)));
 }

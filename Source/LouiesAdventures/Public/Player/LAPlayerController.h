@@ -32,9 +32,9 @@ private:
 	void Jump(const FInputActionValue& InputActionValue);
 	void StopJump(const FInputActionValue& InputActionValue);
 	void Slurp(const FInputActionValue& InputActionValue);
-	void TryWallClimb(bool bDrawDebug = false);
+	void TryWallInteract(bool bDrawDebug = false) const;
 
-	FEnhancedInputActionValueBinding* MoveActionBinding;
+	FEnhancedInputActionValueBinding* MoveActionBinding{ nullptr };
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> LAContext;
