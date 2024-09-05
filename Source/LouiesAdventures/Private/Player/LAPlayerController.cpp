@@ -82,8 +82,15 @@ void ALAPlayerController::Jump(const FInputActionValue& InputActionValue)
 	{
 		ALAPlayer* ControlledCharacter{ CastChecked<ALAPlayer>(ControlledPawn) };
 
-		ControlledCharacter->Jump();
-		ControlledCharacter->ShouldCrouch(false);
+		if (ControlledCharacter->IsWallClimbing() || ControlledCharacter->IsWallSliding())
+		{
+			ControlledCharacter->WallJump();
+		}
+		else
+		{
+			ControlledCharacter->Jump();
+			ControlledCharacter->ShouldCrouch(false);
+		}
 	}
 }
 
@@ -115,7 +122,7 @@ void ALAPlayerController::TryWallInteract(bool bDrawDebug/* = false*/) const
 		ALAPlayer* ControlledCharacter{ CastChecked<ALAPlayer>(ControlledPawn) };
 
 		// Note: If player is not pressing controls toward wall, or character not falling while gravity scale
-		//		 has not been zeroed out, do not interact with the wall
+		//		 has been zeroed out (meaning character is not currently wall climbing), do not interact with the wall
 		if (MoveActionBinding->GetValue().Get<FVector2D>().X * ControlledPawn->GetActorForwardVector().X <= 0.f ||
 			(ControlledPawn->GetMovementComponent()->Velocity.Z > -50.f && ControlledCharacter->GetCharacterMovement()->GravityScale > 0.f))
 		{

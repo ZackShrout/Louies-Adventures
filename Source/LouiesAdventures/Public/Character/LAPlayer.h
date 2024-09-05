@@ -49,6 +49,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ShouldWallSlide(const bool bShouldWallSlide);
+
+	UFUNCTION()
+	void WallJump();
 	
 protected:
 	bool bSlurping{ false };
@@ -68,6 +71,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float WallTraceLength{ 40.f };
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	float WallJumpStrength{ 1800.f };
+
 private:
-	float GravityScale{ 5.5f };
+	const float GravityScale{ 5.5f };
 };

@@ -39,7 +39,7 @@ void ALAPlayer::ShouldWallClimb(const bool bShouldWallClimb)
 	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
 	
 	MovementComponent->GravityScale = bWallClimbing ? 0.f : GravityScale;
-	MovementComponent->Velocity.Z = bWallClimbing ? FMath::Max(0.0, GetMovementComponent()->Velocity.Z) : MovementComponent->Velocity.Z;
+	MovementComponent->Velocity.Z = bWallClimbing ? FMath::Max(0.0, MovementComponent->Velocity.Z) : MovementComponent->Velocity.Z;
 	GetSprite()->SetRelativeTransform(FTransform(FVector(bWallClimbing ? 4.f : -5.f, 0.f, -2.1f)));
 }
 
@@ -51,6 +51,20 @@ void ALAPlayer::ShouldWallSlide(const bool bShouldWallSlide)
 
 	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
 	
-	MovementComponent->Velocity.Z = bWallSliding ? FMath::Max(-20.0, GetMovementComponent()->Velocity.Z) : MovementComponent->Velocity.Z;
+	MovementComponent->Velocity.Z = bWallSliding ? FMath::Max(-20.0, MovementComponent->Velocity.Z) : MovementComponent->Velocity.Z;
 	GetSprite()->SetRelativeTransform(FTransform(FVector(bWallSliding ? 4.f : -5.f, 0.f, -2.1f)));
+}
+
+void ALAPlayer::WallJump()
+{
+	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+
+	if (bWallClimbing)
+	{
+		MovementComponent->GravityScale = GravityScale;
+		MovementComponent->Velocity.Z = FMath::Max(-20.0, MovementComponent->Velocity.Z);
+	}
+
+	GetSprite()->SetRelativeTransform(FTransform(FVector(-5.f, 0.f, -2.1f)));
+	MovementComponent->Velocity.Z = FMath::Max<FVector::FReal>(MovementComponent->Velocity.Z, WallJumpStrength);
 }
